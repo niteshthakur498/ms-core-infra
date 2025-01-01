@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  redis-cache:
+    image: redis
+    container_name: redis-cache
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - nitesh-network  # Connect to the custom network
+    
+  config-server:
+    container_name: config-server
+    build:
+      context: ./config-service  # Path to service-1 Dockerfile
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker  # Set profile to 'docker'
+      - DISCOVERY_SERVER_URL=http://discovery-server:8761/eureka
+    ports:
+      - "7021:7021"  # Expose port 8080 of service to 8081 on the host machine
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7021/actuator/health"]
+      interval: 10s       # Check health every 10 seconds
+      timeout: 5s         # Timeout for each health check
+      retries: 3          # Mark container as unhealthy after 3 failed attempts
+      start_period: 20s   # Wait 20 seconds before starting health checks
+    networks:
+      - nitesh-network  # Connect to the custom network
+
+  discovery-server:
+    container_name: discovery-server
+    deploy:
+      mode: replicated
+      restart_policy:
+        condition: on-failure
+    build:
+      context: ./discovery-service  # Path to service-1 Dockerfile
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker  # Set profile to 'docker'
+      - CONFIG_SERVER_URL=http://config-server:7021
+      - DISCOVERY_SERVER_URL=http://discovery-server:8761/eureka
+    ports:
+      - "8761:8761"  # Expose port 8080 of service to 8081 on the host machine
+    depends_on:
+      config-server:
+        condition: service_healthy # Wait for Config Server to be healthy before starting
+    networks:
+      - nitesh-network  # Connect to the custom network
+
+  gateway-server:
+    container_name: gateway-server
+    deploy:
+      mode: replicated
+      restart_policy:
+        condition: on-failure
+    build:
+      context: ./gateway-service  # Path to service-1 Dockerfile
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker  # Set profile to 'docker'
+      - CONFIG_SERVER_URL=http://config-server:7021
+      - DISCOVERY_SERVER_URL=http://discovery-server:8761/eureka
+      - LOG_LEVEL=DEBUG
+    ports:
+      - "7001:7001"  # Expose port 8080 of service to 8081 on the host machine
+    depends_on:
+      config-server:
+        condition: service_healthy # Wait for Config Server to be healthy before starting
+      discovery-server:
+        condition: service_started # Wait for Config Server to be healthy before starting
+    networks:
+      - nitesh-network  # Connect to the custom network
+      
+networks:
+  nitesh-network:  # Define the custom network
+    driver: bridge  # Use the default bridge driver
