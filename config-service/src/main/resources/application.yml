@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: config-service
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/niteshthakur498/sp-config-provider
+          clone-on-start: true
+          searchPaths: "{application}"
+          #label: master
+        #native:
+          #search-locations: classpath:/configurations
+
+server:
+  port: 7021
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    serviceUrl:
+      defaultZone: ${DISCOVERY_SERVER_URL:http://localhost:8761/eureka}
