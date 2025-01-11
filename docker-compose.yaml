@@ -38,6 +38,8 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - nitesh-network  # Connect to the custom network
 
   kafka:
     image: confluentinc/cp-kafka:latest
@@ -57,6 +59,8 @@ services:
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     depends_on:
       - zookeeper
+    networks:
+      - nitesh-network  # Connect to the custom network
   
   config-server:
     container_name: config-server
