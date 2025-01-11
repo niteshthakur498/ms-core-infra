@@ -1,0 +1,79 @@
+openapi: 3.0.1
+info:
+  title: Publish Service API
+  description: API for publishing messages to various topics
+  version: 1.0.0
+paths:
+  api/v1/publish:
+    post:
+      summary: Publish a message to a specified topic
+      operationId: publishMessage
+      requestBody:
+        description: Message object to be published to the topic
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                topic:
+                  type: string
+                  description: The topic to which the message is being published.
+                message:
+                  type: object
+                  description: The content of the message.
+              required:
+                - topic
+                - message
+      responses:
+        '200':
+          description: Successfully published the message
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Message published successfully.
+        '400':
+          description: Bad request, invalid input data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Invalid request data or missing required fields.
+        '500':
+          description: Internal server error, failed to process the request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Failed to publish message, internal error.
+components:
+  schemas:
+    Message:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+      required:
+        - status
+        - message
