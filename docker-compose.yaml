@@ -9,6 +9,20 @@ services:
     restart: unless-stopped
     networks:
       - nitesh-network  # Connect to the custom network
+  
+  postgres:
+    image: postgres:15.4-alpine # Use the latest version or your preferred version
+    container_name: postgres-container
+    ports:
+      - "5432:5432" # Map port 5432 on the host to port 5432 in the container
+    environment:
+      POSTGRES_USER: nitesh          # Set your desired username
+      POSTGRES_PASSWORD: mypassword  # Set your desired password
+      POSTGRES_DB: testdatabase        # Set your desired database name
+    volumes:
+      - /data/postgres:/var/lib/postgresql/data  # Single volume for all PostgreSQL data
+    networks:
+      - nitesh-network  # Connect to the custom network
     
   config-server:
     container_name: config-server
@@ -74,3 +88,5 @@ services:
 networks:
   nitesh-network:  # Define the custom network
     driver: bridge  # Use the default bridge driver
+    
+
