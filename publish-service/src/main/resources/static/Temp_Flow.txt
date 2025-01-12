@@ -1,0 +1,9 @@
+how I am planning publish service is when a service wants to publish some event , I am going to add it in a queue like structure which will be initially stored with unprocessed status
+then scheduler which is running continuously and looking for any  record in unprocessed queue will send message to kafka using kafka template, in case any kafka gives any error or raised any concern for some reason will mark that record for retry or mark if failure in some case,
+
+
+
+
+Transaction Management: What I am planning is scheduler of one instance of Service picks the record, I will straight away mark it as IN-PROGRESS and COMMIT so that no other instance or scheuler picks it again
+then I will send for kafka publish if kafka processes it successfully , I will delete from queue table and move to history table which only stores processed records
+if it fails will put for retry in case the maximum retry count also fails, I will move it to DLQ table for manual intervention and debugging

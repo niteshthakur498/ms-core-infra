@@ -3,6 +3,36 @@ spring:
     name: publish-service
   config:
     import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:7021}
+
+  # Datasource configuration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/testdatabase
+    driver-class-name: org.postgresql.Driver
+    username: ${SPRING_DATASOURCE_USERNAME:nitesh}
+    password: ${SPRING_DATASOURCE_PASSWORD:mypassword}
+    platform: postgres
+    schema: ${DB_SCHEMA_NAME:publish_schema}  # Default schema for JPA
+    hikari:
+      pool-name: HikariCP
+      maximum-pool-size: 100
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    database: POSTGRESQL
+    properties:
+      hibernate:
+        default_schema: ${DB_SCHEMA_NAME:publish_schema}
+
+  # Flyway configuration
+  flyway:
+    enabled: true
+    schemas: ${DB_SCHEMA_NAME:publish_schema}  # Schema for Flyway migrations
+    placeholder-prefix: "$$${"
+    placeholder-suffix: "}$$$"
+
+
+
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER:localhost:9094}
     producer:
@@ -25,6 +55,9 @@ server:
 
 
 
-
-
+publish:
+  kafka:
+    max-retry-count: ${PUBLISH_RETRY_COUNT:5}
+    thread-pool-size: ${PUBLISH_THREAD_POOL_SIZE:5}
+    scheduler-frequency: ${PUBLISH_SCHEDULER_FREQUENCY:1000}
 

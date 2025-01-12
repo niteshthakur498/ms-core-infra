@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -22,8 +23,17 @@ public class KafkaMessage implements Serializable {
     @NotNull
     private String source;
 
+    @NotNull
+    @NotBlank
+    private LocalDateTime timestamp;
+
     Map<String,Object> payload;// for variables which ever are required will be rendered into template to create final message
 
     List<String> multiMediaUrls;
+
+
+    private String correlationId;
+
+
 
 }

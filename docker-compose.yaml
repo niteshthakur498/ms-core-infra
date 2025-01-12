@@ -3,7 +3,7 @@ version: '3.8'
 services:
   redis-cache:
     image: redis
-    container_name: redis-cache
+    container_name: redis-server
     ports:
       - "6379:6379"
     restart: unless-stopped
@@ -12,7 +12,7 @@ services:
   
   postgres:
     image: postgres:15.4-alpine # Use the latest version or your preferred version
-    container_name: postgres-container
+    container_name: postgresdb-server
     ports:
       - "5432:5432" # Map port 5432 on the host to port 5432 in the container
     environment:
@@ -33,6 +33,7 @@ services:
   
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper-server
     ports:
       - "2181:2181"
     environment:
@@ -43,6 +44,7 @@ services:
 
   kafka:
     image: confluentinc/cp-kafka:latest
+    container_name: kafka-server
     ports:
       - "9092:9092"
       - "9094:9094"
