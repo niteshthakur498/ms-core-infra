@@ -38,12 +38,12 @@ public class KafkaConfig {
         return new KafkaTemplate<>(producerFactory());
     }
 
-    @Bean
-    public KafkaAdmin kafkaAdmin() {
-        Map<String, Object> configs = new HashMap<>();
-        configs.put("bootstrap.servers", bootstrapServers); // Update with your Kafka broker address
-        return new KafkaAdmin(configs);
-    }
+//    @Bean
+//    public KafkaAdmin kafkaAdmin() {
+//        Map<String, Object> configs = new HashMap<>();
+//        configs.put("bootstrap.servers", bootstrapServers); // Update with your Kafka broker address
+//        return new KafkaAdmin(configs);
+//    }
 
     @Bean
     public NewTopic budgetExceededTopic() {

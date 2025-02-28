@@ -5,7 +5,9 @@ spring:
     config:
       server:
         git:
-          uri: https://github.com/niteshthakur498/sp-config-provider
+          uri: ${CONFIG_REPO_URL:https://github.com/niteshthakur498/sp-config-provider}
+          username: ${CONFIG_REPO_USERNAME:test-username}
+          password: ${CONFIG_REPO_TOKEN:test-token}
           clone-on-start: true
           searchPaths: "{application}"
           #label: master
@@ -13,7 +15,7 @@ spring:
           #search-locations: classpath:/configurations
 
 server:
-  port: 7021
+  port: ${APP_PORT:7001}
 
 eureka:
   client:

@@ -2,12 +2,15 @@ package com.nitesh.publish.service.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 @Getter
 @Builder
@@ -27,13 +30,12 @@ public class KafkaMessage implements Serializable {
     @NotBlank
     private LocalDateTime timestamp;
 
-    Map<String,Object> payload;// for variables which ever are required will be rendered into template to create final message
+    HashMap<String,Object> payload;// for variables which ever are required will be rendered into template to create final message
 
-    List<String> multiMediaUrls;
-
+    ArrayList<String> multiMediaUrls;
 
     private String correlationId;
 
-
+    //schema version number
 
 }
