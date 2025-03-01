@@ -85,10 +85,11 @@ public class RouteConfig implements RouteLocator{
             routesBuilder
                     .route(apiRoute.getId().toString(),
                             r->r.path(apiRoute.getRoutePath())
-//                                    .filters(f->
-//                                            f.requestRateLimiter(c->
-//                                                    c.setRateLimiter(redisRateLimiter(apiRoute.getReplenishRate(),apiRoute.getBurstCapacity()))
-//                                            .setKeyResolver(hostNameKeyResolver())))
+                                    .filters(f->
+                                            f.requestRateLimiter(c->
+                                                    //c.setRateLimiter(redisRateLimiter(apiRoute.getReplenishRate(),apiRoute.getBurstCapacity()))
+                                                    c.setRateLimiter(redisRateLimiter())
+                                            .setKeyResolver(hostNameKeyResolver())))
                                     .uri(apiRoute.getUri())
                     );
         }
@@ -121,12 +122,13 @@ public class RouteConfig implements RouteLocator{
     }
 
 
-
-    public RedisRateLimiter redisRateLimiter(int replenishRate, int burstCapacity) {
-        return new RedisRateLimiter(replenishRate, burstCapacity);
+    @Bean
+    //public RedisRateLimiter redisRateLimiter(int replenishRate, int burstCapacity) {
+    public RedisRateLimiter redisRateLimiter() {
+        return new RedisRateLimiter(2, 3);
     }
 
-
+    @Bean
     public KeyResolver hostNameKeyResolver() {
         return exchange ->
                 Mono.just(keyPrefix + Objects.requireNonNull(exchange.getRequest().getRemoteAddress()).getHostName());
