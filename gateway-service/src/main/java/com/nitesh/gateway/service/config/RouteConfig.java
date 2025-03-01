@@ -1,7 +1,8 @@
-package com.nitesh.gateway.service;
+package com.nitesh.gateway.service.config;
 
 import com.nitesh.gateway.service.entity.ApiRoute;
 import com.nitesh.gateway.service.service.ApiRouteService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.factory.GatewayFilterFactory;
 import org.springframework.cloud.gateway.filter.factory.RequestRateLimiterGatewayFilterFactory;
@@ -27,13 +28,14 @@ import reactor.core.publisher.Mono;
 import java.util.Map;
 import java.util.Objects;
 
+@Slf4j
 @Configuration
 public class RouteConfig implements RouteLocator{
 
     private final ApiRouteService apiRouteService;
     private final RouteLocatorBuilder routeLocatorBuilder;
 
-    private String keyPrefix = "gateway-service";
+    private final String keyPrefix = "gateway-service";
 
     @Autowired
     public RouteConfig(ApiRouteService apiRouteService,
@@ -57,17 +59,42 @@ public class RouteConfig implements RouteLocator{
 
     @Override
     public Flux<Route> getRoutes() {
+        log.info("Entered into building rotes " + apiRouteService.findApiRoutes().size() + "  " + apiRouteService.findApiRoutes());
+//        RouteLocatorBuilder.Builder routesBuilder = routeLocatorBuilder.routes();
+//        Flux<ApiRoute> apiRouteFlux = Flux.fromStream(apiRouteService.findApiRoutes().stream());
+//        apiRouteFlux
+//                .flatMap(apiRoute -> {
+//                    routesBuilder.route(apiRoute.getId().toString(),
+//                            r -> r.path(apiRoute.getRoutePath())
+//                                    .filters(f -> f.requestRateLimiter(c ->
+//                                            c.setRateLimiter(redisRateLimiter(apiRoute.getReplenishRate(),apiRoute.getBurstCapacity()))
+//                                                    .setKeyResolver(hostNameKeyResolver())))
+//                                    .uri(apiRoute.getUri())
+//                    );
+//                    return Mono.just(routesBuilder.build().getRoutes());
+//                })
+//                .thenMany(Mono.just(routesBuilder.build().getRoutes()));
+//                //.flatMapMany(Flux::fromIterable)
+//                ;
+//        return routesBuilder.build().getRoutes();
+
+        ///   //////////////////////////////////////////////////////////
+
         RouteLocatorBuilder.Builder routesBuilder = routeLocatorBuilder.routes();
         for(ApiRoute apiRoute:apiRouteService.findApiRoutes()){
             routesBuilder
                     .route(apiRoute.getId().toString(),
                             r->r.path(apiRoute.getRoutePath())
-                                    .filters(f->f.requestRateLimiter(c->c.setRateLimiter(redisRateLimiter()).setKeyResolver(hostNameKeyResolver())))
+//                                    .filters(f->
+//                                            f.requestRateLimiter(c->
+//                                                    c.setRateLimiter(redisRateLimiter(apiRoute.getReplenishRate(),apiRoute.getBurstCapacity()))
+//                                            .setKeyResolver(hostNameKeyResolver())))
                                     .uri(apiRoute.getUri())
                     );
         }
         return routesBuilder.build().getRoutes();
     }
+
 
 
 //    @Bean
@@ -94,13 +121,14 @@ public class RouteConfig implements RouteLocator{
     }
 
 
-    @Bean
-    public RedisRateLimiter redisRateLimiter() {
-        return new RedisRateLimiter(2, 7);
+
+    public RedisRateLimiter redisRateLimiter(int replenishRate, int burstCapacity) {
+        return new RedisRateLimiter(replenishRate, burstCapacity);
     }
 
-    @Bean
+
     public KeyResolver hostNameKeyResolver() {
-        return exchange -> Mono.just(keyPrefix + Objects.requireNonNull(exchange.getRequest().getRemoteAddress()).getHostName());
+        return exchange ->
+                Mono.just(keyPrefix + Objects.requireNonNull(exchange.getRequest().getRemoteAddress()).getHostName());
     }
 }

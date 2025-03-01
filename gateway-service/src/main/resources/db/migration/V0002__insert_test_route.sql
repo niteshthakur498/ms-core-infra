@@ -1,0 +1,2 @@
+INSERT INTO API_ROUTE (id, route_path, service_id, uri, method, strip_prefix, active, replenish_rate, burst_capacity)
+VALUES (1, '/test-service/**', 'test-service', 'lb://test-service', 'GET', FALSE, TRUE, 5, 10);
