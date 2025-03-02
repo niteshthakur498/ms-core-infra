@@ -35,7 +35,10 @@ public class RouteConfig implements RouteLocator{
     private final ApiRouteService apiRouteService;
     private final RouteLocatorBuilder routeLocatorBuilder;
 
-    private final String keyPrefix = "gateway-service";
+
+
+    @Autowired
+    private KeyResolver keyResolver;
 
     @Autowired
     public RouteConfig(ApiRouteService apiRouteService,
@@ -80,16 +83,20 @@ public class RouteConfig implements RouteLocator{
 
         ///   //////////////////////////////////////////////////////////
 
+
         RouteLocatorBuilder.Builder routesBuilder = routeLocatorBuilder.routes();
         for(ApiRoute apiRoute:apiRouteService.findApiRoutes()){
             routesBuilder
                     .route(apiRoute.getId().toString(),
                             r->r.path(apiRoute.getRoutePath())
                                     .filters(f->
-                                            f.requestRateLimiter(c->
+                                            //f.requestRateLimiter(c->
                                                     //c.setRateLimiter(redisRateLimiter(apiRoute.getReplenishRate(),apiRoute.getBurstCapacity()))
-                                                    c.setRateLimiter(redisRateLimiter())
-                                            .setKeyResolver(hostNameKeyResolver())))
+                                                    //c.setRateLimiter(redisRateLimiter())
+                                            f.requestRateLimiter().rateLimiter(RedisRateLimiter.class,
+                                                            config->config.setReplenishRate(apiRoute.getReplenishRate()).setBurstCapacity(apiRoute.getBurstCapacity()))
+                                                    .configure(config -> config.setKeyResolver(keyResolver))
+                                            )
                                     .uri(apiRoute.getUri())
                     );
         }
@@ -122,15 +129,5 @@ public class RouteConfig implements RouteLocator{
     }
 
 
-    @Bean
-    //public RedisRateLimiter redisRateLimiter(int replenishRate, int burstCapacity) {
-    public RedisRateLimiter redisRateLimiter() {
-        return new RedisRateLimiter(2, 3);
-    }
 
-    @Bean
-    public KeyResolver hostNameKeyResolver() {
-        return exchange ->
-                Mono.just(keyPrefix + Objects.requireNonNull(exchange.getRequest().getRemoteAddress()).getHostName());
-    }
 }
